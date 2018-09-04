@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<layout version="1.0.0">
+    <checkout_onepage_index>
+        <reference name="head">
+            <block type="core/text" name="fingerprint">
+                <action method="setText">
+                    <text>
+                        <![CDATA[<script type="text/javascript" src="https://fingerprint.userede.com.br/b.js"></script>]]>
+                    </text>
+                </action>
+            </block>
+            <action method="addJs">
+                <script>rede/adquirencia/payment.js</script>
+            </action>
+            <action method="addJs">
+                <script>rede/adquirencia/validateName.js</script>
+            </action>
+            <action method="addJs">
+                <script>rede/adquirencia/validateCcNumber.js</script>
+            </action>
+            <action method="addJs">
+                <script>rede/adquirencia/validateCvv.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>rede/adquirencia/css/styles.css</stylesheet>
+            </action>
+        </reference>
+    </checkout_onepage_index>
+    <rede_adquirencia_checkout_success>
+        <update handle="INIT_LAYOUT"/>
+        <reference name="content">
+            <block type="rede_adquirencia/checkout_success" name="rede_adquirencia_checkout_success"/>
+        </reference>
+    </rede_adquirencia_checkout_success>
+    <rede_adquirencia_checkout_error>
+        <update handle="INIT_LAYOUT"/>
+        <reference name="content">
+            <block type="rede_adquirencia/checkout_error" name="rede_adquirencia_checkout_error"/>
+        </reference>
+    </rede_adquirencia_checkout_error>
+
+    <jstranslate>
+        <file>jstranslator.xml</file>
+    </jstranslate>
+
+    <INIT_LAYOUT>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/1column.phtml</template>
+            </action>
+        </reference>
+    </INIT_LAYOUT>
+</layout>

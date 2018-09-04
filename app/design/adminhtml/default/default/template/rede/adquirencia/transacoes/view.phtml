@@ -1,0 +1,64 @@
+<?php
+$_helper = Mage::helper('rede_adquirencia');
+$_transacao = $this->getTransacao();
+?>
+<div class="content-header">
+  <?php echo $this->getHeaderHtml() ?>
+<p class="form-buttons"><?php echo $this->getButtonsHtml('header') ?></p>
+</div>
+<?php if ($this->hasTransacao()): ?>
+<div class="box-left">
+<div class="entry-edit">
+<div class="entry-edit-head">
+<h4 class="icon-head head-account"><?php echo $this->getInfoText() ?></h4>
+</div>
+<div class="fieldset">
+<table cellspacing="0" class="form-list">
+	<tr>
+		<td class="label"><label><?php echo $this->escapeHtml($_helper->__('Transaction Date:')) ?></label></td>
+		<td class="value"><strong><?php echo $this->formatDate($_transacao->getCreatedDate(), 'medium', true) ?></strong></td>
+	</tr>
+	<?php if ($this->hasOrder()): ?>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('Order ID:') ?></label></td>
+		<td class="value"><strong><?php echo $this->getOrder()->getRealOrderId() ?></strong></td>
+	</tr>
+	<?php endif; ?>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('Transaction Status:') ?></label></td>
+		<td class="value"><strong><?php echo $this->getStatusDescription() ?></strong></td>
+	</tr>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('Response Message:') ?></label></td>
+		<td class="value"><strong><?php echo $this->escapeHtml($_transacao->getReturnMessage()) ?></strong></td>
+	</tr>
+	<tr>
+		<td class="label"><label><?php echo $this->escapeHtml($_helper->__('Payment Method:')) ?></label></td>
+		<td class="value"><strong><?php echo $this->escapeHtml($_transacao->getPaymentMethod()) ?></strong></td>
+	</tr>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('Installments:') ?></label></td>
+		<td class="value"><strong><?php echo $_transacao->getInstallments() ?></strong></td>
+	</tr>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('TID:') ?></label></td>
+		<td class="value"><strong><?php echo $_transacao->getTid() ?></strong></td>
+	</tr>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('Authorization Code:') ?></label></td>
+		<td class="value"><strong><?php echo $_transacao->getAuthorizationNumber() ?></strong></td>
+	</tr>
+	<tr>
+		<td class="label"><label><?php echo $_helper->__('NSU:') ?></label></td>
+		<td class="value"><strong><?php echo $_transacao->getNsu() ?></strong></td>
+	</tr>
+</table>
+</div>
+</div>
+</div>
+	<?php endif; ?>
+	<?php if ($this->hasFooterButtons()): ?>
+<div class="content-footer">
+<p class="form-buttons"><?php echo $this->getButtonsHtml('footer') ?></p>
+</div>
+	<?php endif; ?>

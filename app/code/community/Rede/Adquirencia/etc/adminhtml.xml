@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config>
+	<menu>
+		<rede_adquirencia translate="title" module="rede_adquirencia">
+			<title>e.Rede</title>
+			<sort_order>100</sort_order>
+			<depends>
+				<module>Rede_Adquirencia</module>
+			</depends>
+			<children>
+				<configuration translate="title" module="rede_adquirencia">
+					<title>Configurations</title>
+					<sort_order>100</sort_order>
+					<action>adminhtml/system_config/edit/section/payment</action>
+				</configuration>
+				<rede_adquirencia_transacoes translate="title" module="rede_adquirencia">
+					<title>Transactions</title>
+					<sort_order>101</sort_order>
+					<action>adminhtml/transacoes</action>
+				</rede_adquirencia_transacoes>
+			</children>
+		</rede_adquirencia>
+	</menu>
+</config>

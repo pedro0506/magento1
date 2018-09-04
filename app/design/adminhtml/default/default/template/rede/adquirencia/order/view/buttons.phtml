@@ -1,0 +1,59 @@
+<?php
+	$_helper = Mage::helper('rede_adquirencia');
+?>
+<?php if ($this->canAct()): ?>
+<div style="display:none">
+	<div id="action_buttons" style="width: 100%;">
+		<br/>
+		<br/>
+		<table cellspacing="0" style="width: 100%; text-align: center;">
+			<tr>
+				<?php if ($this->canCapture()): ?>
+				<td>
+					<button id="btnCapture" type="button" class="scalable" style="width: 100px;" 
+						title="<?php echo $_helper->__('Capture') ?>" onclick="setLocationAndLoading('<?php echo $this->getCaptureUrl() ?>')">
+						<span>
+							<span>
+								<span><?php echo $_helper->__('Capture') ?></span>
+							</span>
+						</span>
+					</button>
+				</td>
+				<?php endif ?>
+				<?php if ($this->canUpdate()): ?>
+				<td>
+					<button id="btnUpdate" type="button" class="scalable" style="width: 100px;" 
+						title="<?php echo $_helper->__('Update') ?>" onclick="setLocationAndLoading('<?php echo $this->getUpdateUrl() ?>')">
+						<span>
+							<span>
+								<span><?php echo $_helper->__('Update') ?></span>
+							</span>
+						</span>
+					</button>
+				</td>
+				<?php endif ?>
+				<?php if ($this->canVoid()): ?>
+				<td>
+					<button id="btnVoid" type="button" class="scalable" style="width: 100px;" title="<?php echo $_helper->__('Cancel') ?>" 
+						onclick="confirmSetLocationAndLoading('<?php echo $this->getVoidConfirmationMessage() ?>', '<?php echo $this->getVoidUrl() ?>')">
+						<span>
+							<span>
+								<span><?php echo $_helper->__('Cancel') ?></span>
+							</span>
+						</span>
+					</button>
+				</td>
+				<?php endif ?>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+	document.observe("dom:loaded", function() {
+		$$('div.box-left > div.entry-edit > div.fieldset')[0].insert($('action_buttons'));
+	});
+//]]>
+</script>
+<?php endif ?>

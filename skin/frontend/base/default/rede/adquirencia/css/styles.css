@@ -1,0 +1,22 @@
+.redeBrand {
+    vertical-align: middle;
+    display: inline !important;
+    width: 35px;
+    height: auto;
+}
+
+.cvv-rede-what-is-this {
+    font-size: 11px;
+    cursor: help;
+    margin-left: 10px;
+}
+
+.rede-tool-tip {
+    right: auto !important;
+}
+
+.installment-info {
+    font-weight: bold;
+    font-style: italic;
+    color: #3f3f3f;
+}

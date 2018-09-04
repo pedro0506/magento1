@@ -1,0 +1,32 @@
+<jstranslator>
+	<payment_cardholder_name_invalid translate="message" module="rede_adquirencia">
+		<message>First and Last Name invalid.</message>
+	</payment_cardholder_name_invalid>
+	<payment_required_field translate="message" module="rede_adquirencia">
+		<message>This is a required field.</message>
+	</payment_required_field>
+	<payment_invalid_card_number translate="message" module="rede_adquirencia">
+		<message>Please enter a valid credit card number.</message>
+	</payment_invalid_card_number>
+	<payment_invalid_cvv translate="message" module="rede_adquirencia">
+		<message>Please enter a valid credit card verification number.</message>
+	</payment_invalid_cvv>
+	<payment_invalid_exp_month_year translate="message" module="rede_adquirencia">
+		<message>Incorrect credit card expiration date.</message>
+	</payment_invalid_exp_month_year>
+	<config_invalid_number translate="message" module="rede_adquirencia">
+		<message>Please enter a valid number in this field.</message>
+	</config_invalid_number>
+	<config_invalid_length translate="message" module="rede_adquirencia">
+		<message>Text length does not satisfy specified text range.</message>
+	</config_invalid_length>
+	<config_invalid_amount translate="message" module="rede_adquirencia">
+		<message>Please enter a valid $ amount. For example $100.00.</message>
+	</config_invalid_amount>
+	<config_invalid_alphanum translate="message" module="rede_adquirencia">
+		<message>Please use only letters (a-z or A-Z) or numbers (0-9) only in this field. No spaces or other characters are allowed.</message>
+	</config_invalid_alphanum>
+	<config_empty_spaces translate="message" module="rede_adquirencia">
+		<message>No spaces are allowed.</message>
+	</config_empty_spaces>
+</jstranslator>

@@ -1,0 +1,3 @@
+[submodule "lib/erede-php"]
+	path = lib/erede-php
+	url = https://github.com/DevelopersRede/erede-php.git

@@ -1,0 +1,177 @@
+<?xml version="1.0" ?>
+<config>
+    <sections>
+        <payment>
+            <groups>
+                <rede_adquirencia module="rede_adquirencia">
+                    <label>e.Rede</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>100</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <frontend_class>complex</frontend_class>
+                    <frontend_model>rede_adquirencia/adminhtml_system_config_fieldset_group</frontend_model>
+                    <comment>e.Rede</comment>
+                    <fields>
+                        <active translate="label tooltip">
+                            <label>Enabled</label>
+                            <tooltip>Enables the Rede module in your store.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>rede_adquirencia/system_config_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </active>
+                        <environment translate="label tooltip">
+                            <label>Environment</label>
+                            <tooltip>Sets the environment of use.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>rede_adquirencia/system_config_environments</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </environment>
+                        <affiliation translate="label comment tooltip">
+                            <label>Affiliation</label>
+                            <tooltip>Affiliation number of the establishment.</tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                            <validate>required-entry validate-number validate-empty-spaces validate-length
+                                maximum-length-8
+                            </validate>
+                        </affiliation>
+                        <password translate="label tooltip">
+                            <label>Token</label>
+                            <tooltip>Password generated in the Rede portal.</tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                            <validate>required-entry validate-alphanum</validate>
+                        </password>
+                        <title translate="label tooltip">
+                            <label>Title</label>
+                            <tooltip>Name that must be submitted for this payment method at the checkout of your
+                                store.
+                            </tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                            <validate>required-entry</validate>
+                        </title>
+                        <transaction_type translate="label tooltip">
+                            <label>Transaction Type</label>
+                            <tooltip>The transaction type that will be sent to the Rede.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>rede_adquirencia/system_config_transaction_types</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </transaction_type>
+                        <installments_amount translate="label tooltip">
+                            <label>Maximum number of installments</label>
+                            <tooltip>Sets up how many installments your store will provide in the payment act.</tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>rede_adquirencia/system_config_installments</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <validate>validate-number</validate>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </installments_amount>
+                        <installments_min_order_value translate="label comment tooltip">
+                            <label>Minimum amount for installment</label>
+                            <comment>Ex.: 20.00</comment>
+                            <tooltip>Sets a minimum amount to provide the installment function in your store.</tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <validate>required-entry validate-currency-dollar</validate>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </installments_min_order_value>
+                        <installments_min_parcel_value translate="label comment tooltip">
+                            <label>Minimum installment amount</label>
+                            <comment>Ex.: 5.00</comment>
+                            <tooltip>Sets a specific minimum value for each parcel.</tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <validate>required-entry validate-currency-dollar</validate>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </installments_min_parcel_value>
+                        <reference translate="label comment tooltip">
+                            <label>Referência inicial</label>
+                            <comment>1000</comment>
+                            <tooltip>Sets a start reference number to be sent with integration</tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <validate>validate-number</validate>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </reference>
+                        <soft_description translate="label tooltip">
+                            <label>Soft Description</label>
+                            <tooltip>
+                                <![CDATA[O parâmetro é composto por 22 caracteres. Os 8 primeiros caracteres são para identificar o nome do estabelecimento, que serão exibido de forma estática na fatura do portador do cartão. Após os 8 caracteres, a Rede insere um hífen e disponibiliza mais 13 caracteres a serem enviados dinamicamente por transação.<br/><b>Exemplo: nomeloja-nomedoproduto</b><br/>Para utilizar essa funcionalidade, acesse o portal da Rede no menu e.Rede > Identificação na fatura ou entre em contato com a Central de atendimento da Rede. Caso o nome não seja cadastrado, o serviço não será habilitado.<br/>Após a habilitação do serviço via portal, a funcionalidade será disponibilizada dentro de um prazo de até 24 horas.]]>
+                            </tooltip>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <validate>validate-length maximum-length-13</validate>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </soft_description>
+                        <!--
+                        <antifraud translate="label tooltip">
+                            <label>Antifraud Enabled</label>
+                            <comment>If enabled, all transactions will be validated through the antifraud system.</comment>
+                            <tooltip><![CDATA[Ativa antifraude.]]></tooltip>
+                            <frontend_type>select</frontend_type>
+                            <source_model>rede_adquirencia/system_config_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </antifraud>
+                        -->
+                    </fields>
+                </rede_adquirencia>
+            </groups>
+        </payment>
+    </sections>
+</config>

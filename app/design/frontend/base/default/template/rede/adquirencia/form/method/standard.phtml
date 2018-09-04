@@ -1,0 +1,204 @@
+<?php
+$_code = $this->getMethodCode();
+$_helper = Mage::helper('rede_adquirencia');
+$customerId = $_helper->getEnvironment() ? '75ee1000-3f7c-11e7-af0a-d705e0dbc8bb' : 'c54b99d0-894e-11e7-adc9-77887d29e284';
+$sessionId = sha1($_helper->getConfigAffiliation() . Mage::getSingleton('core/session')->getEncryptedSessionId() . time());
+$antifraud = $_helper->getConfigAntifraud();
+?>
+<ul class="form-list" id="payment_form_<?php echo $_code ?>"
+    style="display: none;">
+    <li>
+        <input type="hidden" name="payment[session_id]" value="<?php echo $sessionId ?>" />
+    </li>
+    <li><label for="<?php echo $_code ?>_cc_owner" class="required">
+            <em>*</em><?php echo $_helper->__('Name on Card') ?>
+        </label>
+        <div class="input-box"><input type="text"
+                                      id="<?php echo $_code ?>_cc_owner" name="payment[cc_owner]"
+                                      class="input-text required-entry validate-name alpha-field"
+                                      title="<?php echo $_helper->quoteEscape($_helper->__('Name on Card')) ?>"
+                                      value="<?php echo $this->escapeHtml($this->getInfoData('cc_owner')) ?>"
+                                      maxlength="60" style="text-transform: uppercase;"/></div>
+    </li>
+    <?php if ($antifraud): ?>
+    <li><label for="<?php echo $_code ?>_cc_document" class="required">
+            <em>*</em><?php echo $_helper->__('CPF') ?>
+        </label>
+        <div class="input-box"><input type="text"
+                                      id="<?php echo $_code ?>_cc_document" name="payment[cc_document]"
+                                      class="input-text required-entry validate-document numeric-field"
+                                      title="<?php echo $_helper->quoteEscape($_helper->__('CPF')) ?>"
+                                      value="<?php echo $this->escapeHtml($this->getInfoData('cc_document')) ?>"
+                                      maxlength="60" style="text-transform: uppercase;"/></div>
+    </li>
+    <?php endif ?>
+
+    <li><label for="<?php echo $_code ?>_cc_number" class="required">
+            <em>*</em><?php echo $this->escapeHtml($_helper->__('Credit Card Number')) ?>
+        </label>
+        <div class="input-box"><input type="text"
+                                      id="<?php echo $_code ?>_cc_number" name="payment[cc_number]"
+                                      title="<?php echo $this->escapeHtml($_helper->__('Credit Card Number')) ?>"
+                                      class="input-text required-entry validate-cc-number numeric-field"/>
+        </div>
+    </li>
+    <li>
+        <div>
+            <input type='hidden' id="<?php echo $_code ?>_cc_type" name='payment[cc_type]'/>
+            <img id="<?php echo $_code ?>_cc_number_brand_rede" style="width: 365px"
+                 src="<?php echo $this->getBrandsImage() ?>"/>
+        </div>
+    </li>
+    <li><label for="<?php echo $_code ?>_expiration" class="required">
+            <em>*</em><?php echo $_helper->__('Expiration Date') ?>
+        </label>
+        <div class="input-box">
+            <div class="v-fix"><select id="<?php echo $_code ?>_expiration"
+                                       name="payment[cc_exp_month]"
+                                       class="month validate-cc-exp required-entry">
+                    <?php $_ccExpMonth = $this->getInfoData('cc_exp_month') ?>
+                    <?php foreach ($this->getCcMonths() as $k => $v): ?>
+                        <option value="<?php echo $k ? $k : '' ?>" <?php if ($k == $_ccExpMonth): ?>
+                            selected="selected" <?php endif ?>><?php echo $_helper->__($v) ?></option>
+                    <?php endforeach ?>
+                </select></div>
+            <div class="v-fix"><?php $_ccExpYear = $this->getInfoData('cc_exp_year') ?>
+                <select id="<?php echo $_code ?>_expiration_yr"
+                        name="payment[cc_exp_year]" class="year required-entry">
+                    <?php foreach ($this->getCcYears() as $k => $v): ?>
+                        <option value="<?php echo $k ? $k : '' ?>" <?php if ($k == $_ccExpYear): ?>
+                            selected="selected" <?php endif ?>><?php echo $v ?></option>
+                    <?php endforeach ?>
+                </select></div>
+        </div>
+    </li>
+    <li><label for="<?php echo $_code ?>_cc_cid" class="required">
+            <em>*</em><?php echo $this->escapeHtml($_helper->__('Card Verification Number')) ?>
+        </label>
+        <div class="input-box">
+            <div class="v-fix"><input type="text" id="<?php echo $_code ?>_cc_cid"
+                                      name="payment[cc_cid]"
+                                      title="<?php echo $this->escapeHtml($_helper->__('Card Verification Number')) ?>"
+                                      class="input-text cvv required-entry numeric-field validate-cvv-number"/></div>
+            <a href="#" class="cvv-rede-what-is-this"
+               id="<?php echo $_code ?>_ccv_url; ?>"> <?php echo $_helper->__('What is this?') ?>
+            </a></div>
+        <div class="rede-tool-tip tool-tip" id="rede-tool-tip"
+             style="display: none;">
+            <div class="btn-close"><a href="#" id="rede-tool-tip-close"
+                                      title="<?php echo $_helper->__('Close') ?>"> <?php echo $_helper->__('Close') ?>
+                </a></div>
+            <div class="tool-tip-content"><img
+                        src="<?php echo $this->getSkinUrl('rede/adquirencia/images/cvv_rede.gif') ?>"
+                        alt="<?php echo $this->escapeHtml($_helper->__('Card Verification Number Visual Reference')) ?>"
+                        title="<?php echo $this->escapeHtml($_helper->__('Card Verification Number Visual Reference')) ?>"/>
+            </div>
+        </div>
+    </li>
+
+    <li><label for="<?php echo $_code ?>_cc_installments" class="required">
+            <em>*</em><?php echo $_helper->__('Installments') ?> </label>
+        <div class="input-box"><select
+                    id="<?php echo $_code ?>_cc_installments"
+                    name="payment[cc_installments]"
+                    title="<?php echo $_helper->__('Installments') ?>"
+                    class="required-entry">
+
+                <?php foreach ($this->getInstallments() as $k => $v): ?>
+                    <option value="<?php echo $k ? $k : '' ?>"
+                        <?php if (($this->getInfoData('cc_installments') == '' && $k == 1) || $k == $this->getInfoData('cc_installments')): ?>
+                            selected="selected" <?php endif ?>><?php echo $v ?></option>
+                <?php endforeach ?>
+            </select></div>
+    </li>
+    <?php echo $this->getChildHtml() ?>
+</ul>
+
+<script src="https://fingerprint.userede.com.br/b.js"></script>
+<script>
+    //<![CDATA[
+    function simility() {
+        const sc = {
+            "customer_id": "<?php echo $customerId ?>",
+            "session_id": '<?php echo $sessionId ?>',
+            "event_types": "checkout_page",
+            "zone": "us",
+            "request_endpoint": "https://fingerprint.userede.com.br"
+        };
+
+        const ss = new SimilityScript(sc);
+        ss.execute();
+    }
+
+    simility();
+
+    const ccNumber = $('<?php echo $_code ?>_cc_number');
+    const hiddenCcType = $('<?php echo $_code ?>_cc_type');
+
+    Event.observe(ccNumber, 'focus', function (event) {
+        unformatCc(ccNumber);
+    });
+
+    Event.observe(ccNumber, 'blur', function (event) {
+        const valid = Validation.validate(ccNumber);
+
+        if (valid) {
+            formatCc(ccNumber, hiddenCcType.value);
+        }
+    });
+
+    Event.observe($('<?php echo $_code ?>_cc_owner'), 'blur', function (event) {
+        const elm = Event.element(event);
+        elm.value = elm.value.trim().toUpperCase();
+        Validation.validate(elm);
+    });
+
+    Event.observe($('<?php echo $_code ?>_expiration'), 'blur', function (event) {
+        Validation.validate(Event.element(event));
+    });
+
+    Event.observe($('<?php echo $_code ?>_expiration_yr'), 'blur', function (event) {
+        Validation.validate(Event.element(event));
+    });
+
+    Event.observe($('<?php echo $_code ?>_cc_cid'), 'blur', function (event) {
+        Validation.validate(Event.element(event));
+    });
+
+    Event.observe($('<?php echo $_code ?>_cc_installments'), 'blur', function (event) {
+        Validation.validate(Event.element(event));
+    });
+
+    $$('.numeric-field').invoke('observe', 'keypress', function (event) {
+        if (!isNumber(event)) {
+            event.stop();
+        }
+    });
+
+    $$('.alpha-field').invoke('observe', 'keypress', function (event) {
+        if (!isAlphabetic(event)) {
+            event.stop();
+        }
+    });
+
+    Event.observe($('<?php echo $_code ?>_ccv_url; ?>'), 'click', toggleCvvRedeTip);
+
+    tooltipClose = $('rede-tool-tip-close');
+    if (tooltipClose) {
+        Event.observe(tooltipClose, 'click', toggleCvvRedeTip);
+    }
+
+    function toggleCvvRedeTip(event) {
+        tooltip = $('rede-tool-tip');
+        if (tooltip) {
+            tooltip.setStyle({
+                top: (Event.pointerY(event) - 500) + 'px',
+                left: (Event.pointerX(event) - 100) + 'px'
+            });
+            tooltip.toggle();
+        }
+        Event.stop(event);
+    }
+
+    //]]>
+</script>

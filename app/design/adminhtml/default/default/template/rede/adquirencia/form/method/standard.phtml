@@ -1,0 +1,9 @@
+<?php $_code = $this->getMethodCode() ?>
+<ul id="payment_form_<?php echo $_code ?>" style="display:none">
+    <li>
+        <p><?php echo $this->getTextMessage() ?></p>
+        <p>
+        	<?php echo Mage::helper('rede_adquirencia')->getLogoHtml() ?>
+        </p>
+    </li>
+</ul>

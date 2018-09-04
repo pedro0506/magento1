@@ -1,0 +1,28 @@
+<?php
+	$_helper = Mage::helper('rede_adquirencia');
+	$order = $this->getOrder();
+?>
+<div class="page-title">
+    <h1>
+    	<?php echo $this->escapeHtml($_helper->__('Your order #%s is %s.', $order->getRealOrderId(), $_helper->__($order->getStatusLabel()))) ?>
+    </h1>
+</div>
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<p>
+	<?php echo $_helper->__('You will receive an order confirmation email with details of your order and a link to track its progress.') ?>
+</p>
+<p>
+	<a href="<?php echo $this->getPrintOrderUrl() ?>" target="_blank">
+		<?php echo $this->escapeHtml($_helper->__('Click here to print a copy of your order confirmation.')) ?>
+	</a>
+</p>
+<p class="button-container">
+    <button type="button" title="<?php echo $_helper->__('Continue Shopping') ?>"
+    	class="button btn-continue" onclick="window.location='<?php echo $this->getUrl() ?>';">
+    	<span>
+    		<span>
+    			<?php echo $_helper->__('Continue Shopping') ?>
+    		</span>
+    	</span>
+    </button>
+</p>

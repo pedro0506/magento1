@@ -1,0 +1,42 @@
+@media ( max-width :380px) {
+    .redeBrand {
+        vertical-align: middle;
+        display: inline !important;
+        width: 30px;
+        height: auto;
+    }
+}
+
+@media ( min-width :380px) and (max-width:480px) {
+    .redeBrand {
+        vertical-align: middle;
+        display: inline !important;
+        width: 40px;
+        height: auto;
+    }
+}
+
+@media ( min-width :480px) {
+    .redeBrand {
+        vertical-align: middle;
+        display: inline !important;
+        width: 50px;
+        height: auto;
+    }
+}
+
+.cvv-rede-what-is-this {
+    font-size: 11px;
+    cursor: help;
+    margin-left: 10px;
+}
+
+.rede-tool-tip {
+    right: auto !important;
+}
+
+.installment-info {
+    font-weight: bold;
+    font-style: italic;
+    color: #3f3f3f;
+}

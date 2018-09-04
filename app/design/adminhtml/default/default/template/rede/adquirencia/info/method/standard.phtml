@@ -1,0 +1,99 @@
+<?php
+$_helper = Mage::helper('rede_adquirencia');
+$_transacao = $this->getTransacao();
+
+$antifraud = $_transacao->getSuccess();
+$score = $_transacao->getScore();
+$riskLevel = $_transacao->getRiskLevel();
+$recommendation = $_transacao->getRecommendation();
+$refundId = $_transacao->getRefundId();
+$cancelId = $_transacao->getCancelId();
+?>
+
+<p>
+    <?php echo $_helper->getLogoHtml(150) ?>
+</p>
+<?php if (!empty($_transacao)): ?>
+    <table cellspacing="0" class="form-list">
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Cardholder name:') ?></label></td>
+            <td class="value"><strong><?php echo $_transacao->getCardholderName() ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Credit card:') ?></label></td>
+            <td class="value">
+                <strong><?php echo $_transacao->getCardBin() ?></strong>
+                <strong>* * * *</strong>
+                <strong><?php echo $_transacao->getCardNumber() ?></strong>
+            </td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Expiration date:') ?></label></td>
+            <td class="value"><strong><?php echo $this->getExpirationDate() ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Installments:') ?></label></td>
+            <td class="value"><strong><?php echo $_transacao->getInstallments() ?></strong></td>
+        </tr>
+
+
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Nsu:') ?></label></td>
+            <td class="value"><strong><?php echo $_transacao->getNsu() ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Authorization:') ?></label></td>
+            <td class="value"><strong><?php echo $_transacao->getAuthorizationNumber() ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Tid:') ?></label></td>
+            <td class="value"><strong><?php echo $_transacao->getTid() ?></strong></td>
+        </tr>
+
+        <?php if (!empty($refundId)): ?>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Refund Id:') ?></label></td>
+            <td class="value"><strong><?php echo $refundId ?></strong></td>
+        </tr>
+        <?php endif ?>
+        <?php if (!empty($cancelId)): ?>
+        <tr>
+            <td class="label"><label><?php echo $_helper->__('Cancel Id:') ?></label></td>
+            <td class="value"><strong><?php echo $cancelId ?></strong></td>
+        </tr>
+        <?php endif ?>
+    </table>
+
+    <?php if ($_helper->getConfigAntifraud() && (!empty($score) || !empty($riskLevel) || !empty($recommendation))): ?>
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-payment-method">Antifraud</h4>
+        </div>
+
+        <table cellspacing="0" class="form-list">
+            <?php if (!empty($score)): ?>
+                <tr>
+                    <td class="label"><label><?php echo $_helper->__('Antifraud Score:') ?></label></td>
+                    <td class="value"><strong><?php echo $score ?></strong></td>
+                </tr>
+            <?php endif ?>
+
+            <?php if (!empty($riskLevel)): ?>
+                <tr>
+                    <td class="label"><label><?php echo $_helper->__('Antifraud Risk level:') ?></label></td>
+                    <td class="value"><strong><?php echo $riskLevel ?></strong></td>
+                </tr>
+            <?php endif ?>
+
+            <?php if (!empty($recommendation)): ?>
+                <tr>
+                    <td class="label"><label><?php echo $_helper->__('Antifraud Recommendation:') ?></label></td>
+                    <td class="value"><strong><?php echo $recommendation ?></strong></td>
+                </tr>
+            <?php endif ?>
+        </table>
+    <?php endif ?>
+
+
+    <br/>
+<?php endif ?>
+<?php echo $this->getChildHtml() ?>

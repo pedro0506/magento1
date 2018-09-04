@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<layout version="1.0.0.0">
+	<adminhtml_system_config_edit>
+		<reference name="head">
+			<action method="addJs"><script>rede/adquirencia/validateEmptySpaces.js</script></action>
+		</reference>
+	</adminhtml_system_config_edit>
+	<adminhtml_transacoes_index>
+		<reference name="content">
+			<block
+				type="rede_adquirencia/adminhtml_transacoes"
+				name="rede_adquirencia_transacoes"
+			/>
+		</reference>
+	</adminhtml_transacoes_index>
+	<adminhtml_transacoes_view>
+		<reference name="content">
+			<block
+				type="rede_adquirencia/adminhtml_transacoes_view"
+				name="rede_adquirencia_transacoes_view"
+				template="rede/adquirencia/transacoes/view.phtml"
+			/>
+		</reference>
+	</adminhtml_transacoes_view>
+	<adminhtml_sales_order_view>
+		<reference name="head">
+			<action method="addJs"><script>mage/adminhtml/loader.js</script></action>
+			<action method="addJs"><script>rede/adquirencia/loading.js</script></action>
+		</reference>
+		<reference name="order_info">
+            <block
+            	type="rede_adquirencia/adminhtml_order_view_buttons"
+            	name="rede_adquirencia_order_view_buttons"
+            	template="rede/adquirencia/order/view/buttons.phtml"
+            	before="order_history"
+           	/>
+        </reference>
+	</adminhtml_sales_order_view>
+</layout>
