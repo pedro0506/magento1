@@ -127,6 +127,7 @@
                                 <active>1</active>
                             </depends>
                         </installments_min_parcel_value>
+                        <!--
                         <reference translate="label comment tooltip">
                             <label>Referência inicial</label>
                             <comment>1000</comment>
@@ -140,6 +141,7 @@
                                 <active>1</active>
                             </depends>
                         </reference>
+                        -->
                         <soft_description translate="label tooltip">
                             <label>Soft Description</label>
                             <tooltip>

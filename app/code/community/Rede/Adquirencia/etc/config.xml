@@ -2,7 +2,7 @@
 <config>
 	<modules>
 		<Rede_Adquirencia>
-			<version>2.0.0.2</version>
+			<version>2.0.0.3</version>
 		</Rede_Adquirencia>
 	</modules>
 
@@ -181,7 +181,9 @@
 				<currency>BRL</currency>
 				<sort_order>0</sort_order>
 				<environment>0</environment>
+				<!--
 				<reference>0</reference>
+				-->
 				<transaction_type>authorize_capture</transaction_type>
 				<installments_amount>6</installments_amount>
 				<cctypes>CZ,DC,HP,HPC,JCB,VI,MC</cctypes>
