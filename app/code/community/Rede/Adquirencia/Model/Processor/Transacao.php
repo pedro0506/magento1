@@ -1,5 +1,5 @@
 <?php
-require_once Mage::getBaseDir('lib') . '/erede-php/vendor/autoload.php';
+require_once Mage::getBaseDir('lib') . '/autoload.php';
 
 use Rede\Environment;
 use Rede\eRede;
@@ -17,7 +17,6 @@ class Rede_Adquirencia_Model_Processor_Transacao
     const REQUEST_TYPE_VOID = 'VOID';
 
     protected $_helper = null;
-    protected $_logger = null;
 
     /**
      * @param Varien_Object $payment
@@ -142,7 +141,7 @@ class Rede_Adquirencia_Model_Processor_Transacao
         $transactionStatus = Rede_Adquirencia_Model_Transacoes_Status::DENIED;
 
         try {
-            $transaction = (new eRede($store))->authorize($transaction);
+            $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->authorize($transaction);
             $success = $transaction->getReturnCode() == '00';
             $errMessage = $transaction->getReturnMessage();
             $transactionStatus = $transactionStatus = $transaction->getTid() ? Rede_Adquirencia_Model_Transacoes_Status::DENIED : Rede_Adquirencia_Model_Transacoes_Status::CANCELED;
@@ -234,7 +233,7 @@ class Rede_Adquirencia_Model_Processor_Transacao
             $environment
         );
 
-        $transaction = (new \Rede\eRede($store))->capture((new Transaction($amount))->setTid($tid));
+        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->capture((new Transaction($amount))->setTid($tid));
 
         $success = $transaction->getReturnCode() == '00';
 
@@ -292,7 +291,7 @@ class Rede_Adquirencia_Model_Processor_Transacao
             $environment
         );
 
-        $transaction = (new eRede($store))->get($tid);
+        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->get($tid);
         $success = $transaction && !$transaction->getReturnCode();
 
         if (!$success) {
@@ -347,7 +346,7 @@ class Rede_Adquirencia_Model_Processor_Transacao
             $environment
         );
 
-        $transaction = (new \Rede\eRede($store))->cancel((new Transaction($amount))->setTid($tid));
+        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->cancel((new Transaction($amount))->setTid($tid));
         $success = $transaction && in_array($transaction->getReturnCode(), array('359', '360'));
 
         if (!$success) {
