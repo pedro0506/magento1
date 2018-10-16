@@ -29,16 +29,9 @@ ela será completamente descontinuada. Para mais informações, o manual do PHP 
 
 ## Instalação
 
-Esse módulo utiliza o SDK PHP como submódulo, então é importante que ao clonar o repositório, isso seja feito de forma recursiva:
+Esse módulo utiliza o SDK PHP como dependência. Por isso é importante que, assim que o módulo for clonado, seja feita sua instalação:
 
 ```bash
-git clone --recurse-submodules git@github.com:DevelopersRede/magento1.git
-```
-
-Uma vez clonado, é importante ir até o diretório do SDK e fazer um `composer install`:
-
-```bash
-cd lib/erede-php
 composer install
 ```
 
