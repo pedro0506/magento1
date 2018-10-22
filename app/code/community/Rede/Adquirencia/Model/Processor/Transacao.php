@@ -166,46 +166,105 @@ class Rede_Adquirencia_Model_Processor_Transacao
                     $this->_getHelper()->__($capture ? 'Authorized and Captured' : 'Authorized')
                 )
             );
+
+            /**
+             * @var Rede_Adquirencia_Model_Transacoes $transaction
+             * @var int $status
+             **/
+            $redeTransaction = Mage::getModel('rede_adquirencia/transacoes')
+                ->setOrderId($payment->getOrder()->getId())
+                ->setTid($transaction->getTid())
+                ->setTransactionStatus($transactionStatus)
+                ->setCardType($payment->getCcType())
+                ->setCardBin($transaction->getCardBin())
+                ->setCardNumber($payment->getCcLast4())
+                ->setCardholderName($payment->getCcOwner())
+                ->setCardExpYear($payment->getCcExpYear())
+                ->setCardExpMonth($payment->getCcExpMonth())
+                ->setPaymentMethod($payment->getMethodInstance()->getConfigData('title'))
+                ->setInstallments($payment->getAdditionalInformation('cc_installments'))
+                ->setAmount($payment->getAmount())
+                ->setNsu($transaction->getNsu())
+                ->setAuthorizationNumber($transaction->getAuthorizationCode())
+                ->setCreatedDate(date('Y-m-d H:i:s'))
+                ->setReturnMessage($transaction->getReturnMessage())
+                ->setEnvironment($this->_getHelper()->getEnvironment());
+
+            if ($antifraudEnabled == '1') {
+                $antifraud = $transaction->getAntifraud();
+
+                $redeTransaction->setScore($antifraud->getScore())
+                    ->setRiskLevel($antifraud->getRiskLevel())
+                    ->setRecommendation($antifraud->getRecommendation());
+            }
+
+            $redeTransaction->save();
         }
-
-        /**
-         * @var Rede_Adquirencia_Model_Transacoes $transaction
-         * @var int $status
-         **/
-        $redeTransaction = Mage::getModel('rede_adquirencia/transacoes')
-            ->setOrderId($payment->getOrder()->getId())
-            ->setTid($transaction->getTid())
-            ->setTransactionStatus($transactionStatus)
-            ->setCardType($payment->getCcType())
-            ->setCardBin($transaction->getCardBin())
-            ->setCardNumber($payment->getCcLast4())
-            ->setCardholderName($payment->getCcOwner())
-            ->setCardExpYear($payment->getCcExpYear())
-            ->setCardExpMonth($payment->getCcExpMonth())
-            ->setPaymentMethod($payment->getMethodInstance()->getConfigData('title'))
-            ->setInstallments($payment->getAdditionalInformation('cc_installments'))
-            ->setAmount($payment->getAmount())
-            ->setNsu($transaction->getNsu())
-            ->setAuthorizationNumber($transaction->getAuthorizationCode())
-            ->setCreatedDate(date('Y-m-d H:i:s'))
-            ->setReturnMessage($transaction->getReturnMessage())
-            ->setEnvironment($this->_getHelper()->getEnvironment());
-
-        if ($antifraudEnabled == '1') {
-            $antifraud = $transaction->getAntifraud();
-
-            $redeTransaction->setScore($antifraud->getScore())
-                ->setRiskLevel($antifraud->getRiskLevel())
-                ->setRecommendation($antifraud->getRecommendation());
-        }
-
-        $redeTransaction->save();
 
         if (!$success) {
             Mage::throwException(trim($this->_getHelper()->__('Dear customer, this transaction was not authorized. Please try again with a different card or select another payment method.') . "\n\n" . $errMessage));
         }
 
         return $redeTransaction;
+    }
+
+    /**
+     * @return Mage_Core_Helper_Abstract|null
+     */
+    protected function _getHelper()
+    {
+        if (!$this->_helper) {
+            $this->_helper = Mage::helper('rede_adquirencia');
+        }
+        return $this->_helper;
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @param $tid
+     * @param $transactionType
+     * @param array $transactionDetails
+     * @param bool $message
+     *
+     * @return Mage_Sales_Model_Order_Payment_Transaction|null
+     */
+    protected function _addTransaction(
+        Mage_Sales_Model_Order_Payment $payment,
+        $tid,
+        $transactionType,
+        array $transactionDetails = array(),
+        $message = false
+    ) {
+        $payment->setTransactionId($tid);
+
+        foreach ($transactionDetails as $key => $value) {
+            $payment->setData($key, $value);
+        }
+
+        $transaction = $payment->addTransaction($transactionType, null, false, $message);
+
+        foreach ($transactionDetails as $key => $value) {
+            $payment->unsetData($key);
+        }
+
+        $payment->unsLastTransId();
+
+        if ($transaction) {
+            $transaction->setMessage($message);
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * @param Varien_Object $payment
+     *
+     * @throws Mage_Core_Exception
+     */
+    public function captureAndProcess(Varien_Object $payment)
+    {
+        $transacao = $this->capture($payment);
+        $this->_processStatus($payment, $transacao);
     }
 
     /**
@@ -233,7 +292,8 @@ class Rede_Adquirencia_Model_Processor_Transacao
             $environment
         );
 
-        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->capture((new Transaction($amount))->setTid($tid));
+        $transaction = (new eRede($store,
+            new Rede_Adquirencia_Model_Logger()))->capture((new Transaction($amount))->setTid($tid));
 
         $success = $transaction->getReturnCode() == '00';
 
@@ -265,127 +325,6 @@ class Rede_Adquirencia_Model_Processor_Transacao
 
     /**
      * @param Varien_Object $payment
-     *
-     * @throws Mage_Core_Exception
-     */
-    public function captureAndProcess(Varien_Object $payment)
-    {
-        $transacao = $this->capture($payment);
-        $this->_processStatus($payment, $transacao);
-    }
-
-    /**
-     * @param Varien_Object $payment
-     *
-     * @throws Mage_Core_Exception
-     */
-    public function update(Varien_Object $payment)
-    {
-        $redeTransacao = Mage::getModel('rede_adquirencia/transacoes')->load($payment->getOrder()->getId(), 'order_id');
-        $tid = $redeTransacao->getTid();
-
-        $environment = $this->_getHelper()->getEnvironment() ? Environment::production() : Environment::sandbox();
-        $store = new Store(
-            $this->_getHelper()->getConfigAffiliation(),
-            $this->_getHelper()->getConfigToken(),
-            $environment
-        );
-
-        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->get($tid);
-        $success = $transaction && !$transaction->getReturnCode();
-
-        if (!$success) {
-            $errMessage = $this->_getHelper()->__('An error occured while updating: %s',
-                $transaction->getReturnMessage());
-            Mage::throwException($errMessage);
-        }
-
-        $status = $this->_mapTransactionStatus($transaction->getAuthorization()->getStatus());
-
-        if ($redeTransacao->getTransactionStatus() !== $status) {
-            $redeTransacao->setTransactionStatus($status)
-                ->setModifiedDate(date('Y-m-d H:i:s'));
-
-            if ($status === Rede_Adquirencia_Model_Transacoes_Status::APPROVED) {
-                $amount = $transaction->getCapture()->getAmount();
-
-                $redeTransacao->setCaptureAmount(floatval(intval($amount) / 100))
-                    ->setModifiedDate((new DateTime($transaction->getCapture()->getDateTime()))->format('Y-m-d H:i:s'));
-
-            } elseif ($status === Rede_Adquirencia_Model_Transacoes_Status::CANCELED) {
-                $refunds = $transaction->getRefunds();
-
-                if ($refunds && is_array($refunds)) {
-                    foreach ($refunds as $refund) {
-                        $redeTransacao->setModifiedDate((new DateTime($refund->getRefundDateTime()))->format('Y-m-d H:i:s'));
-                        break;
-                    }
-                }
-            }
-
-            $this->_processStatus($payment, $redeTransacao, true);
-        }
-    }
-
-    /**
-     * @param Varien_Object $payment
-     *
-     * @return Mage_Core_Model_Abstract
-     * @throws Mage_Core_Exception
-     */
-    public function refund(Varien_Object $payment)
-    {
-        $amount = $payment->getOrder()->getGrandTotal();
-        $redeTransacao = Mage::getModel('rede_adquirencia/transacoes')->load($payment->getOrder()->getId(), 'order_id');
-        $tid = $redeTransacao->getTid();
-
-        $environment = $this->_getHelper()->getEnvironment() ? Environment::production() : Environment::sandbox();
-        $store = new Store(
-            $this->_getHelper()->getConfigAffiliation(),
-            $this->_getHelper()->getConfigToken(),
-            $environment
-        );
-
-        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->cancel((new Transaction($amount))->setTid($tid));
-        $success = $transaction && in_array($transaction->getReturnCode(), array('359', '360'));
-
-        if (!$success) {
-            $errMessage = $this->_getHelper()->__(
-                'An error occured while canceling: %s',
-                $transaction->getReturnMessage()
-            );
-
-            Mage::throwException($errMessage);
-        }
-
-        $orderState = Mage_Sales_Model_Order::STATE_CLOSED;
-        $statusModel = Mage::getModel('sales/order_status')->loadDefaultByState($orderState);
-        $orderStatus = $statusModel->getStatus() ? $statusModel->getStatus() : $orderState;
-        $payment->getOrder()->setStatus($orderStatus);
-
-        $this->_addVoidTransaction($payment);
-
-        $redeTransacao->setTransactionStatus(Rede_Adquirencia_Model_Transacoes_Status::CANCELED)
-            ->setModifiedDate(date('Y-m-d H:i:s'))
-            ->setRefundId($transaction->getRefundId())
-            ->setCancelId($transaction->getCancelId());
-
-        return $redeTransacao;
-    }
-
-    /**
-     * @param Varien_Object $payment
-     *
-     * @throws Mage_Core_Exception
-     */
-    public function refundAndProcess(Varien_Object $payment)
-    {
-        $transacao = $this->refund($payment);
-        $this->_processStatus($payment, $transacao);
-    }
-
-    /**
-     * @param Varien_Object $payment
      */
     protected function _addCaptureTransaction(Varien_Object $payment)
     {
@@ -412,33 +351,29 @@ class Rede_Adquirencia_Model_Processor_Transacao
     }
 
     /**
-     * @param Varien_Object $payment
+     * @param $payment
+     * @param bool $type
+     *
+     * @return bool
      */
-    protected function _addVoidTransaction(Varien_Object $payment)
+    protected function _getLastTransaction($payment, $type = false)
     {
-        $transaction = $this->_getLastTransaction($payment);
-        $transaction->setIsClosed(true)
-            ->save();
-
-        $type = Mage_Sales_Model_Order_Payment_Transaction::TYPE_REFUND;
-        if ($transaction === Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH) {
-            $type = Mage_Sales_Model_Order_Payment_Transaction::TYPE_VOID;
+        if ($payment->getId()) {
+            $collection = Mage::getModel('sales/order_payment_transaction')->getCollection();
+            if ($type) {
+                $collection->addTxnTypeFilter($type);
+            }
+            $collection->setOrderFilter($payment->getOrder())
+                ->addPaymentIdFilter($payment->getId())
+                ->setOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC)
+                ->setOrder('transaction_id', Varien_Data_Collection::SORT_ORDER_DESC);
+            foreach ($collection as $txn) {
+                $txn->setOrderPaymentObject($payment);
+                return $txn;
+            }
         }
 
-        $this->_addTransaction(
-            $payment,
-            $transaction->getTxnId() . '-void',
-            $type,
-            array(
-                'is_transaction_closed' => 1,
-                'should_close_parent_transaction' => 1,
-                'parent_transaction_id' => $transaction->getTxnId(),
-                'anet_trans_type' => self::REQUEST_TYPE_VOID
-            ),
-            $this->_getHelper()->__('Transaction Voided by E.Rede.')
-        );
-
-        $payment->setSkipTransactionCreation(true);
+        return false;
     }
 
     /**
@@ -551,43 +486,6 @@ class Rede_Adquirencia_Model_Processor_Transacao
     }
 
     /**
-     * @param Mage_Sales_Model_Order_Payment $payment
-     * @param $tid
-     * @param $transactionType
-     * @param array $transactionDetails
-     * @param bool $message
-     *
-     * @return Mage_Sales_Model_Order_Payment_Transaction|null
-     */
-    protected function _addTransaction(
-        Mage_Sales_Model_Order_Payment $payment,
-        $tid,
-        $transactionType,
-        array $transactionDetails = array(),
-        $message = false
-    ) {
-        $payment->setTransactionId($tid);
-
-        foreach ($transactionDetails as $key => $value) {
-            $payment->setData($key, $value);
-        }
-
-        $transaction = $payment->addTransaction($transactionType, null, false, $message);
-
-        foreach ($transactionDetails as $key => $value) {
-            $payment->unsetData($key);
-        }
-
-        $payment->unsLastTransId();
-
-        if ($transaction) {
-            $transaction->setMessage($message);
-        }
-
-        return $transaction;
-    }
-
-    /**
      * @param $order
      *
      * @return bool
@@ -616,6 +514,180 @@ class Rede_Adquirencia_Model_Processor_Transacao
         }
 
         return $invoice;
+    }
+
+    /**
+     * @param Varien_Object $payment
+     */
+    protected function _addVoidTransaction(Varien_Object $payment)
+    {
+        $transaction = $this->_getLastTransaction($payment);
+        $transaction->setIsClosed(true)
+            ->save();
+
+        $type = Mage_Sales_Model_Order_Payment_Transaction::TYPE_REFUND;
+        if ($transaction === Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH) {
+            $type = Mage_Sales_Model_Order_Payment_Transaction::TYPE_VOID;
+        }
+
+        $this->_addTransaction(
+            $payment,
+            $transaction->getTxnId() . '-void',
+            $type,
+            array(
+                'is_transaction_closed' => 1,
+                'should_close_parent_transaction' => 1,
+                'parent_transaction_id' => $transaction->getTxnId(),
+                'anet_trans_type' => self::REQUEST_TYPE_VOID
+            ),
+            $this->_getHelper()->__('Transaction Voided by E.Rede.')
+        );
+
+        $payment->setSkipTransactionCreation(true);
+    }
+
+    /**
+     * @param Varien_Object $payment
+     *
+     * @throws Mage_Core_Exception
+     */
+    public function update(Varien_Object $payment)
+    {
+        $redeTransacao = Mage::getModel('rede_adquirencia/transacoes')->load($payment->getOrder()->getId(), 'order_id');
+        $tid = $redeTransacao->getTid();
+
+        $environment = $this->_getHelper()->getEnvironment() ? Environment::production() : Environment::sandbox();
+        $store = new Store(
+            $this->_getHelper()->getConfigAffiliation(),
+            $this->_getHelper()->getConfigToken(),
+            $environment
+        );
+
+        $transaction = (new eRede($store, new Rede_Adquirencia_Model_Logger()))->get($tid);
+        $success = $transaction && !$transaction->getReturnCode();
+
+        if (!$success) {
+            $errMessage = $this->_getHelper()->__('An error occured while updating: %s',
+                $transaction->getReturnMessage());
+            Mage::throwException($errMessage);
+        }
+
+        $status = $this->_mapTransactionStatus($transaction->getAuthorization()->getStatus());
+
+        if ($redeTransacao->getTransactionStatus() !== $status) {
+            $redeTransacao->setTransactionStatus($status)
+                ->setModifiedDate(date('Y-m-d H:i:s'));
+
+            if ($status === Rede_Adquirencia_Model_Transacoes_Status::APPROVED) {
+                $amount = $transaction->getCapture()->getAmount();
+
+                $redeTransacao->setCaptureAmount(floatval(intval($amount) / 100))
+                    ->setModifiedDate((new DateTime($transaction->getCapture()->getDateTime()))->format('Y-m-d H:i:s'));
+
+            } elseif ($status === Rede_Adquirencia_Model_Transacoes_Status::CANCELED) {
+                $refunds = $transaction->getRefunds();
+
+                if ($refunds && is_array($refunds)) {
+                    foreach ($refunds as $refund) {
+                        $redeTransacao->setModifiedDate((new DateTime($refund->getRefundDateTime()))->format('Y-m-d H:i:s'));
+                        break;
+                    }
+                }
+            }
+
+            $this->_processStatus($payment, $redeTransacao, true);
+        }
+    }
+
+    /**
+     * @param $transactionStatus
+     *
+     * @return int|null
+     */
+    protected function _mapTransactionStatus($transactionStatus)
+    {
+        $status = null;
+        switch ($transactionStatus) {
+            case 'Approved':
+                $status = Rede_Adquirencia_Model_Transacoes_Status::APPROVED;
+                break;
+            case 'Denied':
+                $status = Rede_Adquirencia_Model_Transacoes_Status::DENIED;
+                break;
+            case 'Canceled':
+                $status = Rede_Adquirencia_Model_Transacoes_Status::CANCELED;
+                break;
+            case 'Pending':
+                $status = Rede_Adquirencia_Model_Transacoes_Status::PENDING;
+                break;
+        }
+        return $status;
+    }
+
+    /**
+     * @param Varien_Object $payment
+     *
+     * @throws Mage_Core_Exception
+     */
+    public function refundAndProcess(Varien_Object $payment)
+    {
+        $transacao = $this->refund($payment);
+        $this->_processStatus($payment, $transacao);
+    }
+
+    /**
+     * @param Varien_Object $payment
+     *
+     * @return Mage_Core_Model_Abstract
+     * @throws Mage_Core_Exception
+     */
+    public function refund(Varien_Object $payment)
+    {
+        $amount = $payment->getOrder()->getGrandTotal();
+        $orderId = $payment->getOrder()->getId();
+        $redeTransacao = Mage::getModel('rede_adquirencia/transacoes')->load($orderId, 'order_id');
+        $tid = $redeTransacao->getTid();
+
+        $environment = $this->_getHelper()->getEnvironment() ? Environment::production() : Environment::sandbox();
+        $store = new Store(
+            $this->_getHelper()->getConfigAffiliation(),
+            $this->_getHelper()->getConfigToken(),
+            $environment
+        );
+
+        $transaction = (new eRede($store,
+            new Rede_Adquirencia_Model_Logger()))->cancel((new Transaction($amount))->setTid($tid));
+        $success = $transaction && in_array($transaction->getReturnCode(), array('359', '360'));
+
+        if (!$success) {
+            $errMessage = $this->_getHelper()->__(
+                'An error occured while canceling: %s',
+                $transaction->getReturnMessage()
+            );
+
+            Mage::throwException($errMessage);
+        }
+
+        $orderState = Mage_Sales_Model_Order::STATE_CLOSED;
+        $statusModel = Mage::getModel('sales/order_status')->loadDefaultByState($orderState);
+        $orderStatus = $statusModel->getStatus() ? $statusModel->getStatus() : $orderState;
+        $payment->getOrder()->setStatus($orderStatus);
+
+        $this->_addVoidTransaction($payment);
+
+        $redeTransacao->setTransactionStatus(Rede_Adquirencia_Model_Transacoes_Status::CANCELED)
+            ->setModifiedDate(date('Y-m-d H:i:s'))
+            ->setRefundId($transaction->getRefundId())
+            ->setCancelId($transaction->getCancelId());
+
+        $orderModel = Mage::getModel('sales/order');
+        $orderModel->load($orderId);
+
+        $orderModel->cancel();
+        $orderModel->setState(Mage_Sales_Model_Order::STATE_CANCELED, true)->save();
+        $orderModel->save();
+
+        return $redeTransacao;
     }
 
     /**
@@ -694,67 +766,5 @@ class Rede_Adquirencia_Model_Processor_Transacao
         }
 
         return $cardBrand;
-    }
-
-    /**
-     * @param $payment
-     * @param bool $type
-     *
-     * @return bool
-     */
-    protected function _getLastTransaction($payment, $type = false)
-    {
-        if ($payment->getId()) {
-            $collection = Mage::getModel('sales/order_payment_transaction')->getCollection();
-            if ($type) {
-                $collection->addTxnTypeFilter($type);
-            }
-            $collection->setOrderFilter($payment->getOrder())
-                ->addPaymentIdFilter($payment->getId())
-                ->setOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC)
-                ->setOrder('transaction_id', Varien_Data_Collection::SORT_ORDER_DESC);
-            foreach ($collection as $txn) {
-                $txn->setOrderPaymentObject($payment);
-                return $txn;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return Mage_Core_Helper_Abstract|null
-     */
-    protected function _getHelper()
-    {
-        if (!$this->_helper) {
-            $this->_helper = Mage::helper('rede_adquirencia');
-        }
-        return $this->_helper;
-    }
-
-    /**
-     * @param $transactionStatus
-     *
-     * @return int|null
-     */
-    protected function _mapTransactionStatus($transactionStatus)
-    {
-        $status = null;
-        switch ($transactionStatus) {
-            case 'Approved':
-                $status = Rede_Adquirencia_Model_Transacoes_Status::APPROVED;
-                break;
-            case 'Denied':
-                $status = Rede_Adquirencia_Model_Transacoes_Status::DENIED;
-                break;
-            case 'Canceled':
-                $status = Rede_Adquirencia_Model_Transacoes_Status::CANCELED;
-                break;
-            case 'Pending':
-                $status = Rede_Adquirencia_Model_Transacoes_Status::PENDING;
-                break;
-        }
-        return $status;
     }
 }
