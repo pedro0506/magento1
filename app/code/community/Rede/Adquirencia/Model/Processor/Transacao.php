@@ -50,9 +50,15 @@ class Rede_Adquirencia_Model_Processor_Transacao
             ->setInstallments($payment->getAdditionalInformation('cc_installments'));
 
         $softDescriptor = $this->_getHelper()->getConfigSoftDescription();
+        $module = $this->_getHelper()->getConfigModule();
+        $gateway = $this->_getHelper()->getConfigGateway();
 
         if (!empty($softDescriptor)) {
             $transaction->setSoftDescriptor($softDescriptor);
+        }
+
+        if (!empty($module) && !empty($gateway)) {
+            $transaction->additional($gateway, $module);
         }
 
         // TODO: Antifraude

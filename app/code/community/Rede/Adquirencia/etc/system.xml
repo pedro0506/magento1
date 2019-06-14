@@ -127,6 +127,28 @@
                                 <active>1</active>
                             </depends>
                         </installments_min_parcel_value>
+
+                        <module translate="label">
+                            <label>ID do módulo</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </module>
+                        <gateway translate="label">
+                            <label>ID do gateway</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+                        </gateway>
+
                         <!--
                         <reference translate="label comment tooltip">
                             <label>Referência inicial</label>
@@ -148,7 +170,7 @@
                                 <![CDATA[O parâmetro é composto por 22 caracteres. Os 8 primeiros caracteres são para identificar o nome do estabelecimento, que serão exibido de forma estática na fatura do portador do cartão. Após os 8 caracteres, a Rede insere um hífen e disponibiliza mais 13 caracteres a serem enviados dinamicamente por transação.<br/><b>Exemplo: nomeloja-nomedoproduto</b><br/>Para utilizar essa funcionalidade, acesse o portal da Rede no menu e.Rede > Identificação na fatura ou entre em contato com a Central de atendimento da Rede. Caso o nome não seja cadastrado, o serviço não será habilitado.<br/>Após a habilitação do serviço via portal, a funcionalidade será disponibilizada dentro de um prazo de até 24 horas.]]>
                             </tooltip>
                             <frontend_type>text</frontend_type>
-                            <sort_order>10</sort_order>
+                            <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <validate>validate-length maximum-length-13</validate>

@@ -20,7 +20,7 @@ class Rede_Adquirencia_Helper_Data extends Mage_Core_Helper_Data
      */
     public function getConfigReference()
     {
-        $reference = (int) $this->getPaymentConfig('reference');
+        $reference = (int)$this->getPaymentConfig('reference');
 
         if (!is_numeric($reference) || $reference < 0) {
             $reference = 0;
@@ -91,6 +91,22 @@ class Rede_Adquirencia_Helper_Data extends Mage_Core_Helper_Data
     public function getConfigInstallmentsMinParcelValue()
     {
         return (int)$this->getPaymentConfig('installments_min_parcel_value');
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigModule()
+    {
+        return $this->getPaymentConfig('module');
+    }
+
+    /**
+     * @return string
+     */
+    public function getConfigGateway()
+    {
+        return $this->getPaymentConfig('gateway');
     }
 
     /**
